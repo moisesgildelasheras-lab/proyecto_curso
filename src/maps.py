@@ -33,19 +33,18 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
     q95 = df_map['price'].quantile(0.95) if not df_map.empty else 500
     df_map['price_clipped'] = df_map['price'].clip(upper=q95)
 
-    print(df_map.dtypes)
-    print(df_map["price_clipped"].head())
+
 
     fig = px.scatter_map(
         df_map,
         lat="latitude",
         lon="longitude",
         color="price_clipped",
+        size="price_clipped",
         size_max=12,
         color_continuous_scale=px.colors.cyclical.IceFire,
-        size_max=12,
         zoom=10,
-        mapbox_style="open-street-map",
+        map_style="open-street-map",
         hover_name="name",
         hover_data={
             "price": ":.2f €",
