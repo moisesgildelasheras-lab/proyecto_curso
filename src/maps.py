@@ -33,7 +33,7 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
     q95 = df_map['price'].quantile(0.95) if not df_map.empty else 500
     df_map['price_clipped'] = df_map['price'].clip(upper=q95)
 
-    fig = px.scatter_mapbox(
+    fig = px.scatter_map(
         df_map,
         lat="latitude",
         lon="longitude",
