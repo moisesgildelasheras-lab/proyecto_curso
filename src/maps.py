@@ -10,12 +10,6 @@ import plotly.graph_objects as go
 def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
     """
     Genera un mapa de dispersión interactivo sobre Madrid usando Plotly Express.
-
-    Parameters:
-        df (pd.DataFrame): DataFrame filtrado de Madrid con 'latitude', 'longitude' y 'price'.
-
-    Returns:
-        go.Figure: Figura de Plotly con la representación geográfica.
     """
 
     if df.empty or 'latitude' not in df.columns or 'longitude' not in df.columns:
@@ -32,7 +26,7 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
         subset=['latitude', 'longitude', 'price']
     ).copy()
 
-    # Asegurar que el precio es numérico
+    # Asegurar que el precio sea numérico
     df_map['price'] = pd.to_numeric(
         df_map['price'],
         errors='coerce'
@@ -40,14 +34,17 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
 
     df_map = df_map.dropna(subset=['price'])
 
+    # Limitar la escala de color para evitar que los valores extremos
+    # distorsionen la visualización
+    max_price_color = df_map['price'].quantile(0.99)
+
     fig = px.scatter_map(
         df_map,
         lat="latitude",
         lon="longitude",
         color="price",
-        size="price",
-        size_max=12,
-        color_continuous_scale="Viridis",
+        size_max=10,
+        range_color=(df_map['price'].min(), max_price_color),
         zoom=10,
         map_style="open-street-map",
         hover_name="name",
