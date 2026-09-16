@@ -17,6 +17,7 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
     Returns:
         go.Figure: Figura de Plotly con la representación geográfica.
     """
+
     if df.empty or 'latitude' not in df.columns or 'longitude' not in df.columns:
         fig = go.Figure()
         fig.update_layout(
@@ -26,23 +27,27 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
         )
         return fig
 
-    # Filtrar nulos en coordenadas
-    df_map = df.dropna(subset=['latitude', 'longitude', 'price']).copy()
+    # Filtrar nulos
+    df_map = df.dropna(
+        subset=['latitude', 'longitude', 'price']
+    ).copy()
 
-    # Acotar precios para evitar que outliers distorsionen la escala cromática
-    q95 = df_map['price'].quantile(0.95) if not df_map.empty else 500
-    df_map['price_clipped'] = df_map['price'].clip(upper=q95)
+    # Asegurar que el precio es numérico
+    df_map['price'] = pd.to_numeric(
+        df_map['price'],
+        errors='coerce'
+    )
 
-
+    df_map = df_map.dropna(subset=['price'])
 
     fig = px.scatter_map(
         df_map,
         lat="latitude",
         lon="longitude",
-        color="price_clipped",
-        size="price_clipped",
+        color="price",
+        size="price",
         size_max=12,
-        color_continuous_scale=px.colors.cyclical.IceFire,
+        color_continuous_scale="Viridis",
         zoom=10,
         map_style="open-street-map",
         hover_name="name",
@@ -51,16 +56,16 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
             "room_type": True,
             "neighbourhood_group": True,
             "number_of_reviews": True,
-            "price_clipped": False,
             "latitude": False,
             "longitude": False
         },
         title="<b>Distribución Geográfica de Alojamientos en Madrid</b>",
-        labels={'price_clipped': 'Precio (€)'}
+        labels={"price": "Precio (€)"}
     )
 
     fig.update_layout(
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         template="plotly_white"
     )
+
     return fig
