@@ -39,27 +39,20 @@ def plot_madrid_map(df: pd.DataFrame) -> go.Figure:
     min_price = df_map['price'].min()
     max_price = df_map['price'].max()
 
+    # Acotar el color al percentil 95 o un valor representativo (p. ej., 300€)
+    max_color_price = min(df_map['price'].quantile(0.95), 300.0)
+
     fig = px.scatter_map(
         df_map,
         lat="latitude",
         lon="longitude",
         color="price",
         color_continuous_scale="Viridis",
-        range_color=(min_price, max_price),
-        size_max=10,
-        zoom=10,
+        range_color=(df_map['price'].min(), max_color_price),
+        zoom=11,
         map_style="open-street-map",
         hover_name="name",
-        hover_data={
-            "price": ":.2f €",
-            "room_type": True,
-            "neighbourhood_group": True,
-            "number_of_reviews": True,
-            "latitude": False,
-            "longitude": False
-        },
-        title="<b>Distribución Geográfica de Alojamientos en Madrid</b>",
-        labels={"price": "Precio (€)"}
+        title="<b>Distribución Geográfica de Alojamientos en Madrid</b>"
     )
 
     fig.update_layout(
